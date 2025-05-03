@@ -73,6 +73,7 @@ with gr.Blocks() as demo:
             )
             
             savetools_button = gr.Button("Save")
+            confirmation_message = gr.Label(value="", label="")  # Componente para exibir a mensagem
 
             def update_tools(selected_tools):
                 for tool_name in tools_repo.list_tools_names():
@@ -84,13 +85,13 @@ with gr.Blocks() as demo:
                 global chat_agent, session_id
                 chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(
                     model=model_selector.value
-                    )
+                )
                 
                 session_id = new_session()
                 
-                return f"Tools updated: {', '.join(selected_tools)}"
+                return f"Tools activated: {', '.join(selected_tools)}"
 
-            savetools_button.click(update_tools, [tools_selector], None)
+            savetools_button.click(update_tools, [tools_selector], confirmation_message)  # Atualiza a mensagem
 
 
 demo.launch()
