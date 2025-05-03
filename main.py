@@ -12,6 +12,12 @@ tools_repo = ToolsRepository()
 tools_repo.add_tool("get_temperature", get_temperature)
 tools_repo.add_tool("get_bitcoin_value", get_bitcoin_value)
 
+
+list = [item.identifier for item in chat_agent.client.toolgroups.list()]
+
+for identifier in list:
+    tools_repo.add_tool(identifier, None, builtin=True)
+
 chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(model=DEFAULT_MODEL)
 
 def respond(message, chat_history):
@@ -63,8 +69,10 @@ with gr.Blocks() as demo:
 
             model_selector.change(update_model, [model_selector], None)
             
-        with gr.Tab("Tools"):
-            gr.Markdown("### Active Tools")
+        with gr.Tab("Custom Tools"):
+            gr.Markdown("### Custom tools available")
+
+            list = [item.identifier for item in chat_agent.client.toolgroups.list()]
 
             tools_selector = gr.CheckboxGroup(
                 choices=[tool for tool in tools_repo.list_tools_names()],
@@ -92,6 +100,37 @@ with gr.Blocks() as demo:
                 return f"Tools activated: {', '.join(selected_tools)}"
 
             savetools_button.click(update_tools, [tools_selector], confirmation_message)  # Atualiza a mensagem
+
+            
+        with gr.Tab("Builtin Tools"):
+            gr.Markdown("### Builtin tools available in llama-stack server")
+
+            builtin_tools_selector = gr.CheckboxGroup(
+                choices=[tool for tool in tools_repo.list_builtin_tools_names()],
+                label="Tools",
+                interactive=True,
+            )
+            
+            savebuiltin_button = gr.Button("Save")
+            builtin_confirmation_message = gr.Label(value="", label="")  # Componente para exibir a mensagem
+
+            def update_builtin_tools(selected_tools):
+                for tool_name in tools_repo.list_builtin_tools_names():
+                    if tool_name in selected_tools:
+                        tools_repo.update_tool_status(tool_name, active=True)
+                    else:
+                        tools_repo.update_tool_status(tool_name, active=False)
+                        
+                global chat_agent, session_id
+                chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(
+                    model=model_selector.value
+                )
+            
+                session_id = new_session()
+                
+                return f"Builtin Tools activated: {', '.join(selected_tools)}"
+                
+            savebuiltin_button.click(update_builtin_tools, [builtin_tools_selector], builtin_confirmation_message)  # Atualiza a mensagem
 
 
 demo.launch()
