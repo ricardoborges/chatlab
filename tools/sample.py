@@ -15,3 +15,9 @@ def get_temperature(city: str) -> str:
         return "25°C"
         
     return "19°C"
+
+def get_bitcoin_value() -> str:
+    """
+    Returns the current value of Bitcoin in USD.
+    """
+    return "$27,000"

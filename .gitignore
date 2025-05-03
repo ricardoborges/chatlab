@@ -6,6 +6,8 @@ firebase-credentials.json
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+
 
 # C extensions
 *.so
@@ -158,7 +160,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-tools/__pycache__
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

@@ -1,25 +1,21 @@
 import uuid
 import gradio as gr
-from tools.sample import get_temperature
+from tools.sample import get_temperature, get_bitcoin_value
 from rich.pretty import pprint
 from services.agentbuilder import AgentBuilder
 from tools.toolsrepo import ToolsRepository
 
 LLAMA_STACK_BASE_URL = "http://127.0.0.1:8321"
+DEFAULT_MODEL = "llama3.2:3b"
 
 tools_repo = ToolsRepository()
 tools_repo.add_tool("get_temperature", get_temperature)
+tools_repo.add_tool("get_bitcoin_value", get_bitcoin_value)
 
-tools = tools_repo.all_tools()
-
-agent = AgentBuilder(LLAMA_STACK_BASE_URL).build_agent(
-    tools=tools
-)
-
-session_id = agent.create_session(session_name="My conversation")
+chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(model=DEFAULT_MODEL)
 
 def respond(message, chat_history):
-    response = agent.create_turn(
+    response = chat_agent.create_turn(
         session_id=session_id,
         messages=[{"role": "user", "content": message}],
         stream=False,
@@ -34,64 +30,67 @@ def respond(message, chat_history):
     return "", chat_history
 
 def new_session():
-    global session_id
     new_uuid = str(uuid.uuid4())
-    session_id = agent.create_session(session_name=new_uuid)
-    return "new session created {new_uuid}"
+    return chat_agent.create_session(session_name=new_uuid)
+
+session_id = new_session()
 
 with gr.Blocks() as demo:
     with gr.Tabs():
-        with gr.Tab("Chat"):
-            chatbot = gr.Chatbot()
+        with gr.Tab(f"Chat"):
+            model_selector = gr.Dropdown(
+                choices=[m.identifier for m in chat_agent.client.models.list()] if chat_agent.client.models.list() else ["No models available"],
+                label="Model",
+                value=next((m.identifier for m in chat_agent.client.models.list() if m.identifier.startswith("llama")), None) if chat_agent.client.models.list() else None,
+                interactive=True,
+                multiselect=False,
+            )
+            
+            chatbot = gr.Chatbot(type="tuples")
             msg = gr.Textbox()
             clear = gr.Button("Clear")
 
             msg.submit(respond, [msg, chatbot], [msg, chatbot])
             clear.click(lambda: None, None, chatbot, queue=False)
-
-        with gr.Tab("LLM Settings"):
-            api_url = gr.Textbox(label="LLAMA Stack Base URL", value=LLAMA_STACK_BASE_URL)
             
+              
             def update_model(selected_model):
-                global agent, session_id
-                agent = AgentBuilder(LLAMA_STACK_BASE_URL).build_agent(
-                    tools=[get_temperature],
-                    model=selected_model
-                )
-                new_session()
+                global chat_agent, session_id
+                chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(model=selected_model)
+                session_id = new_session()
                 return f"Modelo alterado para: {selected_model}"
 
-            model_selector = gr.Dropdown(
-                choices=[m.identifier for m in agent.client.models.list()] if agent.client.models.list() else ["No models available"],
-                label="Model",
-                value=next((m.identifier for m in agent.client.models.list() if m.identifier.startswith("llama")), None) if agent.client.models.list() else None,
-                interactive=True,
-                multiselect=False,
-            )
 
             model_selector.change(update_model, [model_selector], None)
+            
+        with gr.Tab("Tools"):
+            gr.Markdown("### Active Tools")
 
-            save_button = gr.Button("Salvar")
+            tools_selector = gr.CheckboxGroup(
+                choices=[tool for tool in tools_repo.list_tools_names()],
+                label="Tools",
+                interactive=True,
+            )
+            
+            savetools_button = gr.Button("Save")
 
-            def save_settings(new_url):
-                global LLAMA_STACK_BASE_URL, session_id, agent
-                LLAMA_STACK_BASE_URL = new_url
-                agent = AgentBuilder(LLAMA_STACK_BASE_URL).build_agent(
-                    tools=[get_temperature]
-                )
-                return "Configurações salvas com sucesso!"
+            def update_tools(selected_tools):
+                for tool_name in tools_repo.list_tools_names():
+                    if tool_name in selected_tools:
+                        tools_repo.update_tool_status(tool_name, active=True)
+                    else:
+                        tools_repo.update_tool_status(tool_name, active=False)
+                        
+                global chat_agent, session_id
+                chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(
+                    model=model_selector.value
+                    )
+                
+                session_id = new_session()
+                
+                return f"Tools updated: {', '.join(selected_tools)}"
 
-            save_button.click(save_settings, [api_url], None)
-
-        #with gr.Tab("Tools"):
-            #gr.Markdown("### Active Tools")
-
-            #tools_selector = gr.CheckboxGroup(
-            #    choices=[tool for tool in tools_repo.list_tools_names()],
-            #    label="Tools",
-            #    value=[],
-            #    interactive=True,
-            #)
+            savetools_button.click(update_tools, [tools_selector], None)
 
 
 demo.launch()

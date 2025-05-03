@@ -1,19 +1,26 @@
 from llama_stack_client import LlamaStackClient, Agent
+from rich.pretty import pprint
 
 class AgentBuilder:
-    def __init__(self, base_url):
+    def __init__(self, base_url, tools_repo):
         self.client = LlamaStackClient(base_url=base_url)
+        self.tools_repo = tools_repo
+        self.agent = None
+        
 
     def build_agent(self, 
-                    model="llama3.2:3b", 
-                    system_prompt="You are a helpful assistant that can use tools to answer questions.",
-                    tools=None):
+                    model = "llama3.2:3B", 
+                    system_prompt="You are a helpful assistant that can use tools to answer questions."
+                    ):
 
+        print("ATUALIZAÇÃO DE TOOLS")
+        pprint(self.tools_repo.active_tools())
+        
         self.agent = Agent(
             self.client,
             model=model,
             instructions=system_prompt,
-            tools=tools
+            tools=self.tools_repo.active_tools()
         )
         
         return self.agent
