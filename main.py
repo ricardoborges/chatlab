@@ -12,13 +12,14 @@ tools_repo = ToolsRepository()
 tools_repo.add_tool("get_temperature", get_temperature)
 tools_repo.add_tool("get_bitcoin_value", get_bitcoin_value)
 
+agent_builder = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo)
 
-list = [item.identifier for item in chat_agent.client.toolgroups.list()]
+list = [item.identifier for item in agent_builder.client.toolgroups.list()]
 
 for identifier in list:
     tools_repo.add_tool(identifier, None, builtin=True)
 
-chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(model=DEFAULT_MODEL)
+chat_agent = agent_builder.build_agent(model=DEFAULT_MODEL)
 
 def respond(message, chat_history):
     response = chat_agent.create_turn(
@@ -28,6 +29,9 @@ def respond(message, chat_history):
         #toolgroups=["username"] // when using MCP integration
     )
 
+    print(f"system_prompt: {agent_builder.system_prompt}")
+    print(f"model: {agent_builder.model}")
+    print(f"prompt: {message}")
     pprint(response.steps)
 
     assistant_response = response.output_message.content

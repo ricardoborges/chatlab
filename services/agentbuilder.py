@@ -7,6 +7,8 @@ class AgentBuilder:
         self.client = LlamaStackClient(base_url=base_url)
         self.tools_repo = tools_repo
         self.agent = None
+        self.model = None
+        self.system_prompt = None
         
 
     def build_agent(self, 
@@ -14,10 +16,18 @@ class AgentBuilder:
                     system_prompt="You are a helpful assistant that can use tools to answer questions."
                     ):
 
+        self.model = model
+        self.system_prompt = system_prompt
+
         print("ATUALIZAÇÃO DE TOOLS")
         pprint(self.tools_repo.active_all())
         
-        
+        if ("builtin::websearch" in self.tools_repo.active_all()):
+            system_prompt += "\nYou can use the web search tool to find information online."
+            
+        print("ATUALIZAÇÃO DE SYSTEM PROMPT")
+        print(system_prompt)
+            
         self.agent = Agent(
             self.client,
             model=model,
