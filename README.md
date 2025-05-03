@@ -1,67 +1,67 @@
-# Guia de Instalação e Configuração
+# Installation and Setup Guide
 
-Este documento fornece instruções passo a passo para configurar o ambiente de desenvolvimento e executar a aplicação.
+This document provides step-by-step instructions for setting up the development environment and running the application.
 
-## Pré-requisitos
+## Prerequisites
 
-Antes de começar, certifique-se de que você tem todas as ferramentas necessárias instaladas no seu sistema.
+Before starting, ensure that you have all the necessary tools installed on your system.
 
-## Passos para Instalação
+## Installation Steps
 
-### 1. Instalação e Execução do Ollama
+### 1. Installing and Running Ollama
 
-O Ollama é necessário para fornecer capacidades de inferência de modelos.
+Ollama is required to provide model inference capabilities.
 
-1. Faça o download e instale o Ollama a partir de [https://ollama.com/](https://ollama.com/)
-2. Inicie o serviço Ollama com o comando:
+1. Download and install Ollama from [https://ollama.com/](https://ollama.com/)
+2. Start the Ollama service with the command:
    ```bash
    ollama serve
    ```
 
-### 2. Configuração do LLama-Stack
+### 2. Setting Up LLama-Stack
 
-O LLama-Stack será utilizado para gerenciar nosso ambiente de inferência.
+LLama-Stack will be used to manage our inference environment.
 
-1. Instale o gerenciador de pacotes `uv`
-2. Configure um ambiente virtual (venv)
-3. Execute o seguinte comando dentro do ambiente virtual:
+1. Install the `uv` package manager
+2. Set up a virtual environment (venv)
+3. Run the following command inside the virtual environment:
    ```bash
    INFERENCE_MODEL=gemma3:latest llama stack build --template ollama --image-type venv --run
    ```
 
-### 3. Configuração do Projeto
+### 3. Project Setup
 
-Clone este repositório e instale as dependências necessárias:
+Clone this repository and install the necessary dependencies:
 
-1. Clone o repositório:
+1. Clone the repository:
    ```bash
    git clone [https://github.com/ricardoborges/chatlab.git]
-   cd [https://github.com/ricardoborges/chatlab.git]
+   cd [chatlab]
    ```
 
-2. Crie um ambiente virtual e instale as dependências:
+2. Create a virtual environment and install dependencies:
    ```bash
    uv venv
    uv pip install -r myproject.toml
    ```
 
-### 4. Execução da Aplicação
+### 4. Running the Application
 
-Inicie a aplicação Gradio com o seguinte comando:
+Start the Gradio application with the following command:
 
 ```bash
 gradio main.py
 ```
 
-Após executar este comando, a interface da aplicação estará disponível no navegador.
+After running this command, the application interface will be available in your browser.
 
-## Resolução de Problemas
+## Troubleshooting
 
-Se encontrar algum problema durante a instalação, verifique:
-- Se o serviço Ollama está em execução
-- Se o ambiente virtual foi ativado corretamente
-- Se todas as dependências foram instaladas com sucesso
+If you encounter any issues during installation, check:
+- That the Ollama service is running
+- That the virtual environment was activated correctly
+- That all dependencies were successfully installed
 
-## Recursos Adicionais
+## Additional Resources
 
-Para mais informações sobre o LLama-Stack, consulte a [documentação oficial](https://llama-stack.readthedocs.io/en/latest/getting_started/index.html).
+For more information about LLama-Stack, refer to the [official documentation](https://llama-stack.readthedocs.io/en/latest/getting_started/index.html).
