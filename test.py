@@ -1,34 +1,40 @@
-from llama_stack_client import LlamaStackClient, Agent, AgentEventLogger
-from termcolor import cprint
-from rich.pretty import pprint
+from llama_stack_client.lib.agents.agent import Agent
+from llama_stack_client.types.agent_create_params import AgentConfig
+from llama_stack_client.lib.agents.event_logger import EventLogger
+from llama_stack_client import LlamaStackClient
+import os
+from dotenv import load_dotenv
+load_dotenv
 
-client = LlamaStackClient(base_url="http://127.0.0.1:8321")
+
+client = LlamaStackClient(
+    base_url=f"http://127.0.0.1:8321",
+    provider_data={
+        "tavily_search_api_key": os.getenv("TAVILY_SEARCH_API_KEY")
+    },  # Set this from the client side. No need to provide it if it has already been configured on the Llama Stack server.
+)
 
 agent = Agent(
-    client, 
+    client,
     model="llama3.2:3b",
-    instructions="You are a helpful assistant. Use websearch tool to help answer questions.",
+    instructions=(
+        "You are a web search assistant, must use websearch tool to look up the most current and precise information available. "
+    ),
     tools=["builtin::websearch"],
+    
 )
-user_prompts = [
-    "oi",
-    "qual foi o ultimo jogo do bahia no campeonato brasileiro de 2025?",
-]
 
-session_id = agent.create_session("test-session")
-for prompt in user_prompts:
-    cprint(f"User> {prompt}", "green")
-    response = agent.create_turn(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        session_id=session_id,
-        stream=False,
-    )
+session_id = agent.create_session("websearch-session")
+
+response = agent.create_turn(
+    messages=[
+        {"role": "user", "content": "How did the USA perform in the last Olympics?"}
+    ],
+    session_id=session_id,
+    toolgroups=["builtin::websearch"],
+    stream=False,
+)
     
-    pprint(response.steps)
-    
-    print(f"Assistant> {response.output_message.content}")
+print(response.steps)
+
+print(response.output_message.content)

@@ -1,12 +1,18 @@
 import uuid
+import os
 import gradio as gr
 from tools.sample import get_temperature, get_bitcoin_value
 from rich.pretty import pprint
 from services.agentbuilder import AgentBuilder
 from tools.toolsrepo import ToolsRepository
+from dotenv import load_dotenv
+load_dotenv()
 
 LLAMA_STACK_BASE_URL = "http://127.0.0.1:8321"
 DEFAULT_MODEL = "llama3.2:3b"
+
+TAVILY_SEARCH_API_KEY = os.environ['TAVILY_SEARCH_API_KEY']
+
 
 tools_repo = ToolsRepository()
 tools_repo.add_tool("get_temperature", get_temperature)
