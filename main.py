@@ -73,7 +73,7 @@ with gr.Blocks() as demo:
                 )
                 
             chatbot = gr.Chatbot(type="tuples")
-            msg = gr.Textbox()
+            msg = gr.Textbox(label="Prompt", placeholder="Enter your prompt here...", show_label=False)
             clear = gr.Button("Clear")
 
             msg.submit(respond, [msg, chatbot], [msg, chatbot])
