@@ -17,6 +17,10 @@ Ollama is required to provide model inference capabilities.
    ```bash
    ollama serve
    ```
+   ```bash
+   ollama pull llama3.2:3b
+   ```
+   
 
 ### 2. Setting Up LLama-Stack
 
