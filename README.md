@@ -2,6 +2,10 @@
 
 This document provides step-by-step instructions for setting up the development environment and running the application.
 
+## Screenshot
+
+![screenshot](chatlab.png)
+
 ## Prerequisites
 
 Before starting, ensure that you have all the necessary tools installed on your system.
