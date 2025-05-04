@@ -9,3 +9,7 @@ mcp = FastMCP("Demo")
 def get_session_username() -> str:
     """return the username of the session"""
     return "Ricardo Borges"
+
+
+if __name__ == "__main__":
+    mcp.run()

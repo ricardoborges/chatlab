@@ -120,7 +120,7 @@ with gr.Blocks() as demo:
             savetools_button.click(update_tools, [tools_selector], confirmation_message)  # Atualiza a mensagem
 
             
-        with gr.Tab("Builtin Tools"):
+        with gr.Tab("Registered Tools"):
             gr.Markdown("### Builtin tools available in llama-stack server")
 
             builtin_tools_selector = gr.CheckboxGroup(
@@ -152,16 +152,34 @@ with gr.Blocks() as demo:
 
         with gr.Tab("MCP"):
             gr.Markdown("### MCP Integration")
+            
+            # List all tools
+            #all_tools = chat_agent.client.tools.list
 
-            mcp_input = gr.Textbox(label="MCP Input", placeholder="Enter MCP data here...")
+
+           # pprint(all_tools())
+            
+         #   mcp_tools_list = gr.Label(value=", ".join(mcp_list), label="Available MCP Tools")
+
+            with gr.Row():
+                mcp_name = gr.Textbox(label="MCP Name", value="mcp::", placeholder="Enter MCP Toolgroup Name")
+                mcp_url = gr.Textbox(label="MCP URL", value="http://127.0.0.1:8282/sse", placeholder="Enter MCP Endpoint URL")
+                process_mcp_button = gr.Button("Process MCP")   
+      
             mcp_output = gr.Label(value="", label="MCP Output")
 
-            process_mcp_button = gr.Button("Process MCP")
 
-            def process_mcp(input_data):
-                # Adicione aqui a lógica para processar os dados do MCP
-                return f"Processed MCP data: {input_data}"
+            def process_mcp(mcp_name, mcp_url):
+                chat_agent.client.toolgroups.register(
+                    toolgroup_id=mcp_name,
+                    provider_id="model-context-protocol",
+                    mcp_endpoint={"uri":mcp_url}
+                )
 
-            process_mcp_button.click(process_mcp, [mcp_input], mcp_output)
+                # Add logic to process MCP data
+                return f"Processed MCP data: {mcp_name}"
+
+            process_mcp_button.click(process_mcp, [mcp_name, mcp_url], mcp_output)
+
 
 demo.launch()
