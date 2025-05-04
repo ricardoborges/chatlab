@@ -8,10 +8,18 @@ from tools.toolsrepo import ToolsRepository
 from dotenv import load_dotenv
 load_dotenv()
 
-LLAMA_STACK_BASE_URL = "http://127.0.0.1:8321"
-DEFAULT_MODEL = "llama3.2:3b"
+DEFAULT_STACK = "Together"
 
+def default_model():
+    if DEFAULT_STACK == "Together":
+        return "meta-llama/Llama-3.3-70B-Instruct"
+    else:
+        return "llama3.2:3b"
+
+TOGETHER_API_KEY = os.environ.get("TOGETHER_API_KEY")
 TAVILY_SEARCH_API_KEY = os.environ['TAVILY_SEARCH_API_KEY']
+LLAMA_STACK_BASE_URL = "http://127.0.0.1:8321"
+DEFAULT_MODEL = default_model()
 
 
 tools_repo = ToolsRepository()
@@ -54,28 +62,28 @@ session_id = new_session()
 with gr.Blocks() as demo:
     with gr.Tabs():
         with gr.Tab(f"Chat"):
-            model_selector = gr.Dropdown(
-                choices=[m.identifier for m in chat_agent.client.models.list()] if chat_agent.client.models.list() else ["No models available"],
-                label="Model",
-                value=next((m.identifier for m in chat_agent.client.models.list() if m.identifier.startswith("llama")), None) if chat_agent.client.models.list() else None,
-                interactive=True,
-                multiselect=False,
-            )
-            
+            with gr.Row():
+
+                model_selector = gr.Dropdown(
+                    choices=[m.identifier for m in chat_agent.client.models.list()] if chat_agent.client.models.list() else ["No models available"],
+                    label="Model",
+                    value=DEFAULT_MODEL,
+                    interactive=True,
+                    multiselect=False,
+                )
+                
             chatbot = gr.Chatbot(type="tuples")
             msg = gr.Textbox()
             clear = gr.Button("Clear")
 
             msg.submit(respond, [msg, chatbot], [msg, chatbot])
             clear.click(lambda: None, None, chatbot, queue=False)
-            
-              
+
             def update_model(selected_model):
                 global chat_agent, session_id
                 chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(model=selected_model)
                 session_id = new_session()
-                return f"Modelo alterado para: {selected_model}"
-
+                return f"Model: {selected_model}"
 
             model_selector.change(update_model, [model_selector], None)
             
