@@ -150,5 +150,18 @@ with gr.Blocks() as demo:
                 
             savebuiltin_button.click(update_builtin_tools, [builtin_tools_selector], builtin_confirmation_message)  # Atualiza a mensagem
 
+        with gr.Tab("MCP"):
+            gr.Markdown("### MCP Integration")
+
+            mcp_input = gr.Textbox(label="MCP Input", placeholder="Enter MCP data here...")
+            mcp_output = gr.Label(value="", label="MCP Output")
+
+            process_mcp_button = gr.Button("Process MCP")
+
+            def process_mcp(input_data):
+                # Adicione aqui a lógica para processar os dados do MCP
+                return f"Processed MCP data: {input_data}"
+
+            process_mcp_button.click(process_mcp, [mcp_input], mcp_output)
 
 demo.launch()
