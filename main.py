@@ -130,8 +130,10 @@ with gr.Blocks() as demo:
             )
             
             savebuiltin_button = gr.Button("Save")
+            remove_tool_button = gr.Button("Remove Selected Tool")  # Botão para remover a ferramenta
             builtin_confirmation_message = gr.Label(value="", label="")  # Componente para exibir a mensagem
 
+        
             def update_builtin_tools(selected_tools):
                 for tool_name in tools_repo.list_builtin_tools_names():
                     if tool_name in selected_tools:
@@ -147,8 +149,16 @@ with gr.Blocks() as demo:
                 session_id = new_session()
                 
                 return f"Builtin Tools activated: {', '.join(selected_tools)}"
-                
-            savebuiltin_button.click(update_builtin_tools, [builtin_tools_selector], builtin_confirmation_message)  # Atualiza a mensagem
+
+            #TODO: update tool list
+            def remove_tool(selected_tool):
+                if selected_tool:
+                    chat_agent.client.toolgroups.unregister(selected_tool[0])
+                    return f"Tool '{selected_tool[0]}' removed successfully."
+                return "No tool selected to remove."
+
+            savebuiltin_button.click(update_builtin_tools, [builtin_tools_selector], builtin_confirmation_message)
+            remove_tool_button.click(remove_tool, [builtin_tools_selector], builtin_confirmation_message)
 
         with gr.Tab("MCP"):
             gr.Markdown("### MCP Integration")
@@ -168,7 +178,7 @@ with gr.Blocks() as demo:
       
             mcp_output = gr.Label(value="", label="MCP Output")
 
-
+            #TODO: update tool list
             def process_mcp(mcp_name, mcp_url):
                 chat_agent.client.toolgroups.register(
                     toolgroup_id=mcp_name,
