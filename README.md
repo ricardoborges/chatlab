@@ -27,7 +27,9 @@ LLama-Stack will be used to manage our inference environment.
 3. Run the following command inside the virtual environment:
    ```bash
    INFERENCE_MODEL=llama3.2:3b llama stack build --template ollama --image-type venv --run
+   ```
    or
+   ```bash
    INFERENCE_MODEL=meta-llama/Llama-3.3-70B-Instruct llama stack build --template together --image-type venv --run
    ```
 
