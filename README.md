@@ -8,7 +8,7 @@ Before starting, ensure that you have all the necessary tools installed on your 
 
 ## Installation Steps
 
-### 1. Installing and Running Ollama
+### 1. Installing and Running Ollama (skip if you will use Together.ai API)
 
 Ollama is required to provide model inference capabilities.
 
@@ -26,7 +26,9 @@ LLama-Stack will be used to manage our inference environment.
 2. Set up a virtual environment (venv)
 3. Run the following command inside the virtual environment:
    ```bash
-   INFERENCE_MODEL=gemma3:latest llama stack build --template ollama --image-type venv --run
+   INFERENCE_MODEL=llama3.2:3b llama stack build --template ollama --image-type venv --run
+   or
+   INFERENCE_MODEL=meta-llama/Llama-3.3-70B-Instruct llama stack build --template together --image-type venv --run
    ```
 
 ### 3. Project Setup
