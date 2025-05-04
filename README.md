@@ -47,6 +47,18 @@ Clone this repository and install the necessary dependencies:
 
 ### 4. Running the Application
 
+Create togetherAI account if you won't start Ollama local service. So, you would first get an API key from Together if you dont have one already.
+
+How to get your API key: 
+https://docs.google.com/document/d/1Vg998IjRW_uujAPnHdQ9jQWvtmkZFt74FldW2MblxPY/edit?tab=t.0
+
+You will need this env variables in your .env file:
+
+TAVILY_SEARCH_API_KEY=
+TOGETHER_API_KEY=
+
+Or just ignore and set DEFAULT_STACK="Ollama" in main.py (if you will run local Ollama service)
+
 Start the Gradio application with the following command:
 
 ```bash
