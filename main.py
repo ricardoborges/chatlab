@@ -35,6 +35,8 @@ for identifier in list:
 
 chat_agent = agent_builder.build_agent(model=DEFAULT_MODEL)
 
+#pprint(chat_agent.client_tools)
+
 def respond(message, chat_history):
     response = chat_agent.create_turn(
         session_id=session_id,
@@ -102,19 +104,21 @@ with gr.Blocks() as demo:
             confirmation_message = gr.Label(value="", label="")  # Componente para exibir a mensagem
 
             def update_tools(selected_tools):
+                global chat_agent, session_id
+                
                 for tool_name in tools_repo.list_tools_names():
                     if tool_name in selected_tools:
                         tools_repo.update_tool_status(tool_name, active=True)
                     else:
                         tools_repo.update_tool_status(tool_name, active=False)
                         
-                global chat_agent, session_id
                 chat_agent = AgentBuilder(LLAMA_STACK_BASE_URL, tools_repo).build_agent(
                     model=model_selector.value
                 )
                 
                 session_id = new_session()
                 
+                pprint(chat_agent.builtin_tools)         
                 return f"Tools activated: {', '.join(selected_tools)}"
 
             savetools_button.click(update_tools, [tools_selector], confirmation_message)  # Atualiza a mensagem
